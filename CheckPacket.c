@@ -7,9 +7,9 @@
 
 struct _ {
 	int num;
-	char ip[200];
+	char ip[2000];
 };
-struct _ count[1000];
+struct _ count[10000];
 int t=0;
 
 void getPacket(u_char * arg, const struct pcap_pkthdr * pkthdr, const u_char * packet)
@@ -19,46 +19,72 @@ void getPacket(u_char * arg, const struct pcap_pkthdr * pkthdr, const u_char * p
 	
 	printf("id: %d\n", ++(*id));
 	printf("Time Mark: %s", ctime((const time_t *)&pkthdr->ts.tv_sec)); 
-	printf("MAC Address From: ");
+	printf("MAC Address Source: ");
 	for(i=6;i<12;i++)
 		printf("%02x ",packet[i]);
 	printf("\n");
 	
-	printf("MAC Adress To: ");
+	printf("MAC Adress Destination: ");
 	for(i=0;i<6;i++)
 		printf("%02x ",packet[i]);
 	printf("\n");
 	
 	int type1=packet[12],type2=packet[13];
-	
-	if(type1==8&&type2==0)//IP
+	//printf("type=%d ,%d\n",type1,type2);
+	if(type1==8&&type2==0||type1==134&&type2==221)//IP
 	{
-		printf("Type: IP\n");
-		
-		printf("Source IP Address: ");
-		for(i=26;i<29;i++)
-			printf("%d.",packet[i]);		
-		printf("%d\n",packet[29]);
-		
-		printf("Destination IP Address: ");
-		for(i=30;i<33;i++)
-			printf("%d.",packet[i]);
-		printf("%d\n",packet[33]);
-
-		printf("Protocol type: ");
-		if(packet[23]==6)
-			printf("TCP\n");
-		else if(packet[23]==17)
-			printf("UDP\n");
-		else 
-			printf("else\n");
+		if(type1==8&&type2==0){ //v4
+			printf("Type: IPv4\n");
+			printf("Source IP Address: ");
+			for(i=26;i<29;i++)
+				printf("%d.",packet[i]);		
+			printf("%d\n",packet[29]);
 			
-		if(packet[23]==6||packet[23]==17){
-			printf("Source port: %d\n",packet[34]*256+packet[35]);
-			printf("Destination port: %d\n",packet[36]*256+packet[37]);
+			printf("Destination IP Address: ");
+			for(i=30;i<33;i++)
+				printf("%d.",packet[i]);
+			printf("%d\n",packet[33]);
+			
+			printf("Protocol type: ");
+			if(packet[23]==6)
+				printf("TCP\n");
+			else if(packet[23]==17)
+				printf("UDP\n");
+			else 
+				printf("else\n");
+			if(packet[23]==6||packet[23]==17){
+				printf("Source port: %d\n",packet[34]*256+packet[35]);
+				printf("Destination port: %d\n",packet[36]*256+packet[37]);
+			}
+			
 		}
-		sprintf(tmp,"[%d.%d.%d.%d] to [%d.%d.%d.%d]\0",packet[26],packet[27],packet[28],packet[29],packet[30],packet[31],packet[32],packet[33]);
-		
+		else{	//v6
+		printf("Type: IPv6\n");
+			printf("Source IP Address: ");
+			for(i=22;i<35;i+=2)
+				printf("%02x%02x:",packet[i],packet[i+1]);		
+			printf("%02x%02x\n",packet[36],packet[37]);
+			
+			printf("Destination IP Address: ");
+			for(i=38;i<51;i+=2)
+				printf("%02x%02x:",packet[i],packet[i+1]);		
+			printf("%02x%02x\n",packet[52],packet[53]);
+			
+			printf("Protocol type: ");
+			if(packet[20]==6)
+				printf("TCP\n");
+			else if(packet[20]==17)
+				printf("UDP\n");
+			else if(packet[20]==58)
+				printf("ICMPv6\n");
+			else
+				printf("else\n");
+				
+			if(packet[20]==6||packet[20]==17){
+				printf("Source port: %d\n",packet[54]*256+packet[55]);
+				printf("Destination port: %d\n",packet[56]*256+packet[57]);
+			}
+		}
 		int flag=0;
 		for(i=0;i<t;i++)
 		{
@@ -75,8 +101,10 @@ void getPacket(u_char * arg, const struct pcap_pkthdr * pkthdr, const u_char * p
 			strcpy(count[t].ip,tmp);
 			t++;
 		}
+	}else{
+		printf("Type: not IP/TCP\n");
 	}
-	printf("\n\n");
+	printf("\n");
 }
 
 int main(int argc ,char *argv[])
@@ -113,10 +141,8 @@ int main(int argc ,char *argv[])
 
 	int id = 0,i;
 	pcap_loop(device, n, getPacket, (u_char*)&id);
-	printf("--------------------------------------\n");
-	for(i=0;i<t;i++)
-		printf("%s  %d\n",count[i].ip,count[i].num);
 	pcap_close(device);
 
 	return 0;
 }
+
