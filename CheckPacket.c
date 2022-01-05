@@ -19,6 +19,7 @@ void getPacket(u_char * arg, const struct pcap_pkthdr * pkthdr, const u_char * p
 	
 	printf("id: %d\n", ++(*id));
 	printf("Time Mark: %s", ctime((const time_t *)&pkthdr->ts.tv_sec)); 
+	printf("\n");
 	printf("MAC Address Source: ");
 	for(i=6;i<12;i++)
 		printf("%02x ",packet[i]);
@@ -27,7 +28,7 @@ void getPacket(u_char * arg, const struct pcap_pkthdr * pkthdr, const u_char * p
 	printf("MAC Adress Destination: ");
 	for(i=0;i<6;i++)
 		printf("%02x ",packet[i]);
-	printf("\n");
+	printf("\n\n");
 	
 	int type1=packet[12],type2=packet[13];
 	//printf("type=%d ,%d\n",type1,type2);
@@ -44,7 +45,7 @@ void getPacket(u_char * arg, const struct pcap_pkthdr * pkthdr, const u_char * p
 			for(i=30;i<33;i++)
 				printf("%d.",packet[i]);
 			printf("%d\n",packet[33]);
-			
+			printf("\n");
 			printf("Protocol type: ");
 			if(packet[23]==6)
 				printf("TCP\n");
@@ -69,7 +70,7 @@ void getPacket(u_char * arg, const struct pcap_pkthdr * pkthdr, const u_char * p
 			for(i=38;i<51;i+=2)
 				printf("%02x%02x:",packet[i],packet[i+1]);		
 			printf("%02x%02x\n",packet[52],packet[53]);
-			
+			printf("\n");
 			printf("Protocol type: ");
 			if(packet[20]==6)
 				printf("TCP\n");
@@ -104,7 +105,7 @@ void getPacket(u_char * arg, const struct pcap_pkthdr * pkthdr, const u_char * p
 	}else{
 		printf("Type: not IP/TCP\n");
 	}
-	printf("\n");
+	printf("**************next**************\n\n");
 }
 
 int main(int argc ,char *argv[])
