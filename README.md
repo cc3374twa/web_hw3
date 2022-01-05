@@ -61,3 +61,10 @@
       其他:
         
         Type: not IP/TCP
+-------------------------------------------------------
+ref:
+https://www.itread01.com/content/1546926183.html
+
+https://ithelp.ithome.com.tw/articles/10193160
+
+http://www.tsnien.idv.tw/Network_WebBook/chap13/A-8%20IPv6%20%E9%80%9A%E8%A8%8A%E5%8D%94%E5%AE%9A.html
